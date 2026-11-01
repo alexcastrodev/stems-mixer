@@ -1,0 +1,65 @@
+# --- Xcode / Swift: o que o Xcode gera e e so teu
+.build/
+.swiftpm/
+DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xcarchive
+*.xcresult
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap
+*.moved-aside
+
+# --- Segredos e assinatura: nunca no repositorio
+.env
+.env.*
+*.p12
+*.pfx
+*.cer
+*.pem
+*.key
+*.p8
+*.keychain
+*.mobileprovision
+*.provisionprofile
+GoogleService-Info.plist
+Secrets.xcconfig
+Local.xcconfig
+*.local.xcconfig
+# o convite do servidor (a app guarda-o no aparelho) e as permissoes locais do Claude Code
+invite.txt
+.claude/settings.local.json
+
+# --- Diagnosticos do aparelho: trazem dados teus (contas, caminhos, registos do sistema)
+*.ips
+*.crash
+*.trace
+*.logarchive
+*.sysdiagnose
+*.tracev3
+*.log
+
+# --- Musica e videos: podem ter direitos de autor. Os ficheiros de teste (Fixtures/) ficam.
+*.mp3
+*.m4a
+*.aac
+*.flac
+*.opus
+*.wav
+*.mov
+*.mp4
+!**/Fixtures/**
+
+# --- Sistema e editores
+.DS_Store
+._*
+.AppleDouble
+.Spotlight-V100
+.Trashes
+.idea/
+.vscode/
+*.swp

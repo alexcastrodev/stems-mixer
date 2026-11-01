@@ -1,0 +1,21 @@
+[
+  {
+    "id": "a1b2c3d4e5f6",
+    "name": "Banda - Musica.mp3",
+    "status": "done",
+    "stems": ["drums", "vocals"],
+    "drum_stems": ["drum_kick", "drum_snare"],
+    "created": 1700000000.5,
+    "duration": 222.5,
+    "artist": "Banda",
+    "format": "flac",
+    "bpm": 122,
+    "bpm_auto": 122,
+    "downbeat_offset": 0.5,
+    "analyzed": true,
+    "beats": [0.5, 1.0],
+    "downbeats": [0.5],
+    "sections": [{"start": 0.0, "end": 10.0, "label": "intro"}],
+    "progress": null
+  }
+]

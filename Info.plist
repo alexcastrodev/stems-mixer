@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- a musica continua a tocar com o ecra bloqueado; o Xcode ignora INFOPLIST_KEY_UIBackgroundModes, tem de estar aqui -->
+	<key>NSCameraUsageDescription</key>
+	<string>Para filmares enquanto a música toca.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Para gravar o teu som no vídeo.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Para guardar o vídeo na Fototeca.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+	<!-- KURZ_API=http://localhost:8000 (o servidor local do README) fala em HTTP: so a rede local, o resto continua a exigir HTTPS -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+</dict>
+</plist>
