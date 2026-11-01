@@ -127,15 +127,17 @@ import Observation
 
     public func tick() {
         guard let m = _mixer else { return }
-        isPlaying = m.playing
+        // @Observable avisa as vistas a cada escrita, mesmo com o mesmo valor: a 20 Hz so se escreve o que mudou (o texto dos tempos muda 1 vez por segundo).
+        func put<T: Equatable>(_ p: ReferenceWritableKeyPath<PlayerViewModel, T>, _ v: T) { if self[keyPath: p] != v { self[keyPath: p] = v } }
+        put(\.isPlaying, m.playing)
         let pos = m.position, dur = m.duration, f = dur > 0 ? pos / dur : 0
-        total = Self.fmt(dur)
+        put(\.total, Self.fmt(dur))
         if !isScrubbing {
-            progress = f
-            elapsed = Self.fmt(pos)
-            remaining = "-" + Self.fmt(max(0, dur - pos))
+            put(\.progress, f)
+            put(\.elapsed, Self.fmt(pos))
+            put(\.remaining, "-" + Self.fmt(max(0, dur - pos)))
         }
-        for t in tracks { t.progress = f }                   // a parte ja tocada das ondas
+        for t in tracks where t.progress != f { t.progress = f }   // a parte ja tocada das ondas
         metronome.tickBeat()
     }
 

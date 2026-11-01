@@ -125,8 +125,9 @@ import Observation
     func tickBeat() {
         guard player.hasMixer else { return }
         let c = metro.map.cell(player.position)
-        cell = c
-        beatIndex = isOn && player.isPlayingNow && c >= 0 ? Int(c) % 4 : -1
+        let beat = isOn && player.isPlayingNow && c >= 0 ? Int(c) % 4 : -1
+        if cell != c { cell = c }                              // so se escreve o que mudou: cada escrita refaz as vistas que o leem
+        if beatIndex != beat { beatIndex = beat }
     }
 
     // Repoe o clique (desligado, volume por omissao) e o tempo (volta ao detetado pelo servidor).

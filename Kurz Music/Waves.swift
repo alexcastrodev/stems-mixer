@@ -10,7 +10,7 @@ struct WaveformView: View {
     var body: some View {
         let peaks = track.peaks ?? [], progress = track.progress, dim = track.dim, color = Color(hex: track.lane)
         GeometryReader { geo in
-            Canvas { ctx, size in
+            Canvas(rendersAsynchronously: true) { ctx, size in          // 20 pinturas por segundo por faixa: fora do fio principal, para os toques nao esperarem
                 guard !peaks.isEmpty else { return }
                 var played = Path(), rest = Path()
                 let px = progress * size.width
