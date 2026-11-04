@@ -29,7 +29,7 @@ struct StudioDetail: View {
     @State private var showCamera = false
     static let head: CGFloat = 280
 
-    // As ondas: uma faixa por stem (cabeca + onda), a tira de seccoes e a faixa do metronomo.
+    // As ondas: uma faixa por stem (cabeca + onda), a tira de seccoes e a faixa do metronomo (pela ordem escolhida).
     private var lanes: some View {
         let p = app.player
         return ScrollView {
@@ -41,21 +41,24 @@ struct StudioDetail: View {
                     }
                     .frame(height: 32).background(K.laneHead).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
                 }
-                ForEach(p.laneRows, id: \.name) { track in
-                    HStack(spacing: 0) {
-                        LaneControls(track: track).frame(width: Self.head)
-                        WaveformView(track: track)
-                    }
-                    .frame(height: 84).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
-                }
+                ForEach(p.laneRows.prefix(p.metroRow), id: \.name, content: lane)
                 HStack(spacing: 0) {
                     MetronomeLaneHead(open: { showMetronome = true }).frame(width: Self.head)
                     BeatGridView()
                 }
-                .frame(height: 80)
+                .frame(height: 80).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
+                ForEach(p.laneRows.dropFirst(p.metroRow), id: \.name, content: lane)
             }
             .overlay { LoopBand(start: p.loopStart, end: p.loopEnd).padding(.leading, Self.head) }
         }
+    }
+
+    private func lane(_ track: Track) -> some View {
+        HStack(spacing: 0) {
+            LaneControls(track: track).frame(width: Self.head)
+            WaveformView(track: track)
+        }
+        .frame(height: 84).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
     }
 
     var body: some View {

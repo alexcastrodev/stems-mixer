@@ -10,6 +10,7 @@ import KurzCore
     let account: Account
     let library: LibraryStore
     let cache: StemCache
+    let orderFile: URL
 
     // `api`: o servidor (por omissao KURZ_API ou o de producao). `directory`: onde ficam a biblioteca e os stems. `configuration`: so os testes a mudam.
     public init(api: String? = nil, directory: URL? = nil, invite: String? = nil, stall: TimeInterval = 30, configuration: URLSessionConfiguration = .default) {
@@ -17,6 +18,7 @@ import KurzCore
         server = ServerAPI(api: api ?? ProcessInfo.processInfo.environment["KURZ_API"] ?? "https://musik-api.kurz.fyi", stall: stall, configuration: configuration)
         library = LibraryStore(server: server, dir: dir)
         cache = StemCache(server: server, dir: dir)
+        orderFile = dir.appendingPathComponent("stem-order.json")
         account = Account(server: server, library: library, dir: dir, invite: invite)
     }
 
@@ -59,6 +61,13 @@ import KurzCore
     public func cached() -> [Song] { library.cached() }
     public func fixTempo(_ id: String, bpm: Int? = nil, downbeatOffset: Double? = nil) async throws -> Bool { try await library.fixTempo(id, bpm: bpm, downbeatOffset: downbeatOffset) }
     public func resetTempo(_ id: String) async throws -> (bpm: Int?, offset: Double) { try await library.resetTempo(id) }
+
+    // --- ordem das faixas ---
+    // A ordem que o utilizador deu aos stems (pelos nomes com que se mostram): vale para todas as musicas e e do aparelho, nao da conta.
+    public var stemOrder: [String] {
+        get { (try? JSONDecoder().decode([String].self, from: Data(contentsOf: orderFile))) ?? [] }
+        set { try? Disk.save(orderFile, JSONEncoder().encode(newValue)) }
+    }
 
     // --- stems no disco ---
     public func isCached(_ song: Song) -> Bool { cache.isCached(song) }

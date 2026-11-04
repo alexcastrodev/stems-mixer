@@ -90,6 +90,14 @@ func clicks(_ bpm: Double, secs: Int = 40) -> [Int16] {
         #expect(StemCatalog.displayName("vocals") == "Vocais" && StemCatalog.displayName("xyz") == "xyz")
         #expect(["other", "bass", "vocals", "drums"].sorted { StemCatalog.rank($0) < StemCatalog.rank($1) } == ["drums", "vocals", "bass", "other"])
     }
+    @Test func savedStemOrderWinsAndTheRestKeepsTheDefault() {
+        let s = ["other", "guitar", "bass", "vocals", "drums"]
+        #expect(StemCatalog.sorted(s, saved: []) == ["drums", "vocals", "guitar", "bass", "other"])
+        #expect(StemCatalog.sorted(s, saved: ["Baixo", "Vocais"]) == ["bass", "vocals", "drums", "guitar", "other"])      // o que ela nao conhece vai a seguir, por omissao
+        #expect(StemCatalog.metronomeSlot(s, saved: []) == 5)                                                                // sem ordem guardada, no fim
+        #expect(StemCatalog.metronomeSlot(s, saved: ["Baixo", "Metrónomo", "Vocais"]) == 1)                                  // so o baixo vem antes
+        #expect(StemCatalog.metronomeSlot(s, saved: ["Metrónomo", "Baixo"]) == 0)
+    }
     @Test func playlistStopsAtTheEnds() {
         let songs = ["a", "b", "c"].map { Song(id: $0, title: $0, status: $0 == "b" ? .queued : .done, stems: []) }
         #expect(Playlist.neighbour(songs, from: "a", step: 1)?.id == "c")

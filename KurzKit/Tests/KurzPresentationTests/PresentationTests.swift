@@ -199,6 +199,22 @@ import Testing
         #expect(out == [5000, 5000, 5000, 5000])                              // 2000 (bateria) + 1000 (vocais) + 2000 (outros)
     }
 
+    @Test func reorderingTheTracksIsSavedForEverySong() async {
+        let w = World()
+        await w.start([w.job("a", stems: ["drums", "vocals", "other"]), w.job("b", stems: ["vocals", "drums"])])
+        let p = w.player!
+        #expect(await p.play(w.library.songs.first { $0.id == "a" }!))
+        #expect(p.order == ["Bateria", "Vocais", "Outros", "Metrónomo"] && p.metroRow == 3)      // sem ordem guardada, o metronomo vai no fim
+        p.reorder(["Outros", "Metrónomo", "Vocais", "Bateria"])
+        #expect(p.tops.map(\.name) == ["Outros", "Vocais", "Bateria"] && p.tracks.map(\.name) == p.tops.map(\.name) && p.laneRows.map(\.name) == p.tops.map(\.name))
+        #expect(p.metroSlot == 1 && p.metroRow == 1 && p.order == ["Outros", "Metrónomo", "Vocais", "Bateria"])
+        #expect(w.stems.stemOrder == ["Outros", "Metrónomo", "Vocais", "Bateria"])
+        #expect(await p.play(w.library.songs.first { $0.id == "b" }!))                // outra musica abre com a mesma ordem
+        #expect(p.tops.map(\.name) == ["Vocais", "Bateria"] && p.metroSlot == 0 && p.metroRow == 0)      // o metronomo fica antes de tudo
+        p.reorder(["Bateria", "Vocais", "Metrónomo"])                                // o que esta musica nao tem (Outros) fica guardado a seguir
+        #expect(w.stems.stemOrder == ["Bateria", "Vocais", "Metrónomo", "Outros"])
+    }
+
     @Test func muteSoloAndResetChangeWhatIsHeardAndDimTheWave() async {
         let w = World()
         #expect(await opened(w))

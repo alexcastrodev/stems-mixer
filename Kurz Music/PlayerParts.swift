@@ -63,15 +63,18 @@ struct PlaybackRow: View {
     }
 }
 
-// O menu "…" da musica aberta: exportar a mistura, repor tudo e apagar.
+// O menu "…" da musica aberta: exportar a mistura, ordenar as faixas, repor tudo e apagar.
 struct SongMenu: View {
     @Environment(AppModel.self) private var app
+    @State private var ordering = false
     var body: some View {
         Menu("Mais", systemImage: "ellipsis") {
             Button("Exportar a mistura (WAV)", systemImage: "square.and.arrow.down") { app.exportMix() }
+            Button("Ordenar as faixas", systemImage: "arrow.up.arrow.down") { ordering = true }
             Button("Repor volumes, solo, repetição e tempo", systemImage: "arrow.counterclockwise") { Task { await app.player.resetAll() } }
             Button("Apagar a música", systemImage: "trash", role: .destructive) { app.library.askDeleteOpen() }
         }
+        .sheet(isPresented: $ordering) { TrackOrderSheet() }
     }
 }
 

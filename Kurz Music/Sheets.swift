@@ -155,11 +155,11 @@ struct TempoSheet: View {
 }
 
 // A configuracao do metronomo no iPhone, em blocos grandes: ligar, subdivisao (so o clique), BPM (a velocidade da musica) e o compasso 1.
-// O volume, o M e o S ficam na faixa dos stems.
+// O M e o S ficam na faixa dos stems (o volume também está lá).
 struct MetronomeSheet: View {
     @Environment(AppModel.self) private var app
     var body: some View {
-        let m = app.player.metronome
+        @Bindable var m = app.player.metronome
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 HStack {
@@ -198,6 +198,11 @@ struct MetronomeSheet: View {
                     Text("Tempo da música: \(m.tempoValue)").font(.system(size: 13)).foregroundStyle(K.textDim)
                 }
 
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Volume do clique").font(.system(size: 15)).foregroundStyle(K.textDim)
+                    Slider(value: $m.volume, in: 0...1).tint(K.accent).accessibilityLabel("Volume do clique")
+                }
+
                 VStack(spacing: 10) {
                     if m.speed != 1 { actionButton("Velocidade original", "gobackward") { m.resetSpeed() } }
                     actionButton("O compasso 1 começa aqui", "mappin.and.ellipse") { Task { await m.markBar() } }
@@ -227,6 +232,36 @@ struct MetronomeSheet: View {
                 .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// Ordenar as faixas (e o metronomo): arrasta-se cada uma. A ordem fica guardada no aparelho e vale para todas as musicas.
+struct TrackOrderSheet: View {
+    @Environment(AppModel.self) private var app
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        let p = app.player
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Ordenar as faixas").font(.system(size: 20, weight: .semibold)).padding([.horizontal, .top], 24).padding(.bottom, 8)
+            List {
+                ForEach(p.order, id: \.self) { name in
+                    Label(name, systemImage: name == StemCatalog.metronome ? "metronome" : LaneControls.icon(name)).listRowBackground(K.surface)
+                }
+                .onMove { from, to in var n = p.order; n.move(fromOffsets: from, toOffset: to); p.reorder(n) }
+            }
+            .listStyle(.plain).scrollContentBackground(.hidden)
+            #if os(iOS)
+            .environment(\.editMode, .constant(.active))      // as pegas de arrastar ficam sempre a vista
+            #endif
+            Text("A ordem fica guardada neste aparelho e vale para todas as músicas.").font(.system(size: 11)).foregroundStyle(K.textDim).padding(.horizontal, 24).padding(.top, 8)
+            HStack { Spacer(); Button("Fechar") { dismiss() }.buttonStyle(OutlineButtonStyle()) }.padding(24)
+        }
+        .background(K.bg).foregroundStyle(K.text)
+        #if os(macOS)
+        .frame(width: 460, height: 420)
+        #else
+        .presentationDetents([.medium, .large])
+        #endif
     }
 }
 

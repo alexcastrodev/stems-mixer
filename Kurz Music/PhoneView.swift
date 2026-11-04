@@ -48,7 +48,7 @@ struct PlayerScreen: View {
     @State private var showCamera = false
     @State private var showMetronome = false               // a folha do metronomo: abre pelo botao de baixo e pelo nome da faixa
 
-    // A aba dos stems: o titulo, uma faixa por stem, o metronomo e o tempo.
+    // A aba dos stems: o titulo, uma faixa por stem e o metronomo (pela ordem escolhida).
     private var stems: some View {
         let p = app.player
         return ScrollView {
@@ -58,12 +58,15 @@ struct PlayerScreen: View {
                     Text(p.infoText).font(.system(size: 13)).foregroundStyle(K.textDim)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).padding(16)
-                ForEach(p.laneRows, id: \.name) { track in
-                    LaneControls(track: track).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
-                }
+                ForEach(p.laneRows.prefix(p.metroRow), id: \.name, content: lane)
                 MetronomeLane(open: { showMetronome = true }).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
+                ForEach(p.laneRows.dropFirst(p.metroRow), id: \.name, content: lane)
             }
         }
+    }
+
+    private func lane(_ track: Track) -> some View {
+        LaneControls(track: track).overlay(alignment: .bottom) { Rectangle().fill(K.line).frame(height: 1) }
     }
 
     var body: some View {

@@ -13,7 +13,7 @@ import KurzData
     // `format`: como o servidor guardou os stems (Song.format). A descodificacao corre fora da thread da interface.
     public func load(id: String, stems names: [String], drums: [String], status: (String) -> Void, progress: ((Double) -> Void)? = nil, format: StemFormat = .wav) async throws -> [Track] {
         status("Carregando stems…")
-        let names = names.enumerated().sorted { (StemCatalog.rank($0.element), $0.offset) < (StemCatalog.rank($1.element), $1.offset) }.map(\.element)   // estavel: o resto fica na ordem do servidor
+        let names = StemCatalog.sorted(names, saved: stems.stemOrder)   // a ordem do utilizador; o resto, por omissao (estavel: fica na ordem do servidor)
         let all = names + drums
         var done = [Double](repeating: 0, count: all.count)                    // o que ja se leu de cada stem
         func report(_ i: Int, _ f: Double) { done[i] = max(done[i], f); progress?(done.reduce(0, +) / Double(done.count)) }

@@ -90,6 +90,7 @@ import Observation
         tops = top
         tracks = top.flatMap { [$0] + $0.parts }
         current = song
+        metroSlot = StemCatalog.metronomeSlot(top.map(\.name), saved: stems.stemOrder)
         showLanes()
         let m = mixer
         m.load(tracks)                                       // o load limpa o ciclo do mixer
@@ -189,7 +190,29 @@ import Observation
     public func toggleSolo(_ t: Track) { t.solo.toggle(); refreshDim() }
     public func toggleExpanded(_ t: Track) { t.expanded.toggle(); showLanes() }
     func refreshDim() { let any = tracks.contains { $0.solo }; for t in tracks { t.refresh(anySolo: any) } }
-    func showLanes() { laneRows = Lanes.rows(tops) }
+    func showLanes() {
+        laneRows = Lanes.rows(tops)
+        metroRow = tops.prefix(metroSlot).reduce(0) { $0 + 1 + ($1.expanded ? $1.parts.count : 0) }
+    }
+
+    // O metronomo e uma faixa como as outras na ordem: `metroSlot` e quantas faixas de topo vem antes dele, `metroRow` o mesmo em linhas de
+    // `laneRows` (uma bateria aberta conta com as suas partes).
+    public private(set) var metroSlot = 0
+    public private(set) var metroRow = 0
+
+    // As faixas de topo e o metronomo, na ordem em que se mostram: o que "Ordenar as faixas" mexe.
+    public var order: [String] { var n = tops.map(\.name); n.insert(StemCatalog.metronome, at: min(metroSlot, n.count)); return n }
+
+    // Poe as faixas de topo e o metronomo nesta ordem (as partes da bateria vao com a sua faixa) e guarda-a no aparelho como a de todas as
+    // musicas; o que esta musica nao tem (stems) fica a seguir na ordem guardada.
+    public func reorder(_ names: [String]) {
+        guard let m = names.firstIndex(of: StemCatalog.metronome) else { return }
+        tops.sort { (names.firstIndex(of: $0.name) ?? .max) < (names.firstIndex(of: $1.name) ?? .max) }
+        tracks = tops.flatMap { [$0] + $0.parts }
+        metroSlot = min(m, tops.count)
+        showLanes()
+        stems.stemOrder = names + stems.stemOrder.filter { !names.contains($0) }
+    }
 
     // --- repetir trecho ---
     // Mac e iPad: arrasta-se sobre as ondas. iPhone: o 1.o toque marca o inicio, o 2.o o fim (e repete-o), o 3.o sai.
